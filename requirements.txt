@@ -1,1 +1,16 @@
 pywin32
+opencv-python
+
+# face_recognition stack for Windows — dlib must come from a prebuilt wheel
+# (dlib-bin) since compiling real dlib needs Visual Studio Build Tools.
+# Install in this exact order, don't just run `pip install -r requirements.txt`:
+#   pip install dlib-bin
+#   pip install face_recognition --no-deps
+#   pip install Pillow Click numpy face_recognition_models "setuptools<81"
+dlib-bin
+face_recognition
+Pillow
+Click
+numpy
+face_recognition_models
+setuptools<81

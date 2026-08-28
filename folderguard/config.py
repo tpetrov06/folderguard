@@ -40,3 +40,6 @@ def load_config():
 
 def new_id():
     return uuid.uuid4().hex[:12]
+
+def face_data_path():
+    return app_data_dir() / "face_data.bin"

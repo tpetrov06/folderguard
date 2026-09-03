@@ -7,7 +7,7 @@ from . import config, security
 def has_enrolled_face():
     return config.face_data_path().exists()
 
-def enroll_face(samples = 5, camera_index = 0):
+def enroll_face(samples=5, camera_index=0):
     cam = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
     encodings = []
 
@@ -26,6 +26,7 @@ def enroll_face(samples = 5, camera_index = 0):
     cam.release()
     security.save_encodings(config.face_data_path(), encodings)
     print("enrollment saved")
+    return True
 
 def verify_face(tolerance = 0.5, camera_index = 0):
     known_encodings = security.load_encodings(config.face_data_path())

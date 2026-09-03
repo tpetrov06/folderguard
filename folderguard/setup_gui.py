@@ -57,5 +57,34 @@ enroll_button.pack(pady=10)
 
 refresh_folder_list()
 
+def remove_selected():
+    selection = folder_listbox.curselection()
+    if not selection:
+        messagebox.showwarning("Remove Protection", "Select a folder from the list first.")
+        return
+
+    index = selection[0]
+    cfg = config.load_config()
+    folder_ids = list(cfg["protected_folders"].keys())
+    folder_id = folder_ids[index]
+    entry = cfg["protected_folders"][folder_id]
+
+    confirmed = messagebox.askyesno(
+        "Remove Protection",
+        f"Remove protection from '{entry['name']}'? This cannot be undone."
+    )
+    if not confirmed:
+        return
+
+    try:
+        vault.remove_protection(folder_id)
+        refresh_folder_list()
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
+
+
+remove_button = tk.Button(root, text="Remove Protection", command=remove_selected)
+remove_button.pack(pady=10)
+
 
 root.mainloop()

@@ -24,6 +24,12 @@ def _hide(path: Path):
 def _unhide(path: Path):
     ctypes.windll.kernel32.SetFileAttributesW(str(path), FILE_ATTRIBUTE_NORMAL)
 
+def _restore_name(hidden: Path, original: Path):
+    if original.exists():
+        raise FileExistsError(
+            f"Cannot restore '{original.name}' — something already exists at {original}"
+        )
+    hidden.rename(original)
 
 PROJECT_ROOT = str(Path(__file__).parent.parent)
 
@@ -74,7 +80,7 @@ def unlock_folder(folder_id: str):
     original = Path(entry["original_path"])
 
     _unhide(hidden)
-    hidden.rename(original)
+    _restore_name(hidden, original)
 
     entry["locked"] = False
     config.save_config(cfg)
@@ -94,12 +100,30 @@ def relock_folder(folder_id: str):
     entry["locked"] = True
     config.save_config(cfg)
 
+def remove_protection(folder_id: str):
+    cfg = config.load_config()
+    entry = cfg["protected_folders"].get(folder_id)
+    if entry is None:
+        raise KeyError(f"No protected folder with id {folder_id}")
+
+    hidden = Path(entry["hidden_path"])
+    original = Path(entry["original_path"])
+
+    if entry["locked"] and hidden.exists():
+        _unhide(hidden)
+        _restore_name(hidden, original)
+
+    shortcut_path = Path(entry["shortcut_path"])
+    if shortcut_path.exists():
+        shortcut_path.unlink()
+
+    del cfg["protected_folders"][folder_id]
+    config.save_config(cfg)
+
 if __name__ == "__main__":
     import os
     os.makedirs("C:/Temp/TestFolder", exist_ok=True)
     fid = lock_folder("C:/Temp/TestFolder")
     print("locked, id:", fid)
-    unlock_folder(fid)
-    print("unlocked")
-    relock_folder(fid)
-    print("relocked")
+    remove_protection(fid)
+    print("protection removed")

@@ -79,9 +79,27 @@ def unlock_folder(folder_id: str):
     entry["locked"] = False
     config.save_config(cfg)
 
+def relock_folder(folder_id: str):
+    cfg = config.load_config()
+    entry = cfg["protected_folders"].get(folder_id)
+    if entry is None:
+        raise KeyError(f"No protected folder with id {folder_id}")
+
+    original = Path(entry["original_path"])
+    hidden = Path(entry["hidden_path"])
+
+    original.rename(hidden)
+    _hide(hidden)
+
+    entry["locked"] = True
+    config.save_config(cfg)
 
 if __name__ == "__main__":
     import os
     os.makedirs("C:/Temp/TestFolder", exist_ok=True)
     fid = lock_folder("C:/Temp/TestFolder")
     print("locked, id:", fid)
+    unlock_folder(fid)
+    print("unlocked")
+    relock_folder(fid)
+    print("relocked")

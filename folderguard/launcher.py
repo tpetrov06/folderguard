@@ -1,12 +1,13 @@
 import sys
 import os
+import time
 
 if sys.stdout is None:
     sys.stdout = open(os.devnull, "w")
 if sys.stderr is None:
     sys.stderr = open(os.devnull, "w")
 
-from . import vault, face_auth
+from . import vault, face_auth, config
 
 
 def main():
@@ -28,6 +29,20 @@ def main():
 
     vault.unlock_folder(folder_id)
     print("unlocked")
+
+    os.startfile(get_original_path(folder_id))
+
+    cfg = config.load_config()
+    timeout_minutes = cfg["settings"]["relock_timeout_minutes"]
+    time.sleep(timeout_minutes * 60)
+
+    vault.relock_folder(folder_id)
+    print("relocked")
+
+
+def get_original_path(folder_id):
+    cfg = config.load_config()
+    return cfg["protected_folders"][folder_id]["original_path"]
 
 
 if __name__ == "__main__":

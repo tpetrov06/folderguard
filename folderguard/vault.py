@@ -37,11 +37,17 @@ PROJECT_ROOT = str(Path(__file__).parent.parent)
 def create_shortcut(shortcut_path: Path, folder_id: str):
     shell = win32com.client.Dispatch("WScript.Shell")
     shortcut = shell.CreateShortcut(str(shortcut_path))
-    shortcut.TargetPath = LAUNCHER_PYTHON
-    shortcut.Arguments = f'-m folderguard.launcher {folder_id}'
-    shortcut.WorkingDirectory = PROJECT_ROOT
-    shortcut.Save()
 
+    if getattr(sys, "frozen", False):
+        shortcut.TargetPath = sys.executable
+        shortcut.Arguments = folder_id
+        shortcut.WorkingDirectory = str(Path(sys.executable).parent)
+    else:
+        shortcut.TargetPath = LAUNCHER_PYTHON
+        shortcut.Arguments = f'-m folderguard.launcher {folder_id}'
+        shortcut.WorkingDirectory = PROJECT_ROOT
+
+    shortcut.Save()
 
 def lock_folder(original_path: str) -> str:
     original = Path(original_path)

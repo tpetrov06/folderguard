@@ -1,6 +1,13 @@
 import sys
+import os
 
-from . import vault
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w")
+
+from . import vault, face_auth
+
 
 def main():
     if len(sys.argv) < 2:
@@ -8,10 +15,19 @@ def main():
         return
 
     folder_id = sys.argv[1]
-    print("launcher received id:", folder_id)
+
+    if not face_auth.has_enrolled_face():
+        print("No face enrolled yet — run setup first")
+        return
+
+    verified = face_auth.verify_face()
+
+    if not verified:
+        print("Face not recognized — access denied")
+        return
 
     vault.unlock_folder(folder_id)
-    print("folder unlocked")
+    print("unlocked")
 
 
 if __name__ == "__main__":

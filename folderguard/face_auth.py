@@ -4,6 +4,9 @@ import face_recognition
 
 from . import config, security
 
+def has_enrolled_face():
+    return config.face_data_path().exists()
+
 def enroll_face(samples = 5, camera_index = 0):
     cam = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
     encodings = []

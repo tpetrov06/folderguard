@@ -4,13 +4,14 @@ from . import config
 
 root = tk.Tk()
 root.title("FolderGuard Setup")
-root.geometry("400x300")
+root.geometry("400x800")
 
 label = tk.Label(root, text="Protected Folders")
 label.pack(pady=10)
 
 folder_listbox = tk.Listbox(root, width=50)
 folder_listbox.pack(pady=10)
+
 
 
 def refresh_folder_list():
@@ -20,6 +21,9 @@ def refresh_folder_list():
         status = "locked" if entry["locked"] else "unlocked"
         folder_listbox.insert(tk.END, f"{entry['name']} ({status})")
 
+def poll_for_changes():
+    refresh_folder_list()
+    root.after(3000, poll_for_changes)
 
 from tkinter import filedialog, messagebox
 from . import vault
@@ -86,5 +90,5 @@ def remove_selected():
 remove_button = tk.Button(root, text="Remove Protection", command=remove_selected)
 remove_button.pack(pady=10)
 
-
+poll_for_changes()
 root.mainloop()
